@@ -5,6 +5,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #define PI 3.14159265
+#define AnglePlayer 60;
+#define AngleLight 360;
 
 ///////////////////// Player
 //player position and display
@@ -14,7 +16,7 @@ int FixAng(int a){ if(a>359){ a-=360;} if(a<0){ a+=360;} return a;}
 float px, py, pdx, pdy, pa; //x, y, delta x, delta y, angle
 void drawPlayer()
 {
-    glColor3f(1,1,0);   glPointSize(8);    glLineWidth(4);
+    glColor3f(0,1,0);   glPointSize(8);    glLineWidth(4);
     glBegin(GL_POINTS); glVertex2i(px,py); glEnd();
     glBegin(GL_LINES);  glVertex2i(px,py); glVertex2i(px+pdx*20,py+pdy*20); glEnd();
 }
@@ -71,12 +73,10 @@ void drawRays2D()
 {
     glColor3f(0.282, 0.239, 0.545); glBegin(GL_QUADS); glVertex2i(526,  0); glVertex2i(1006,  0); glVertex2i(1006,160); glVertex2i(526,160); glEnd();
     glColor3f(	0.824, 0.706, 0.549); glBegin(GL_QUADS); glVertex2i(526,160); glVertex2i(1006,160); glVertex2i(1006,320); glVertex2i(526,320); glEnd();
-
     int r,mx,my,mp,dof,side; float vx,vy,rx,ry,ra,xo,yo,disV,disH;
-
     ra=FixAng(pa+30);                                                              //ray set back 30 degrees
 
-    for(r=0;r<60;r++)
+    for(r=0;r<60;r++) //r = 60 for player, r = 360 for lighting
     {
         //---Vertical---
         dof=0; side=0; disV=100000;
@@ -122,12 +122,12 @@ void drawRays2D()
 }
 
 ///////////////////// Lighting
-float l_px, l_py, l_pa; //x, y, delta x, delta y, angle
+/*float l_px, l_py, l_pa; //x, y, delta x, delta y, angle
 void drawLight()
 {
     glColor3f(1,1,0);   glPointSize(8);    glLineWidth(4);
 
-}
+}*/
 
 
 ////////////////// Display
