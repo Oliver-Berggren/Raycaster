@@ -145,7 +145,7 @@ void init (void)
     glClearColor(0.3,0.3,0.3,0);
     gluOrtho2D(0,1024,512,0);
     px = 300; py = 300; pdx = cos(pa) * 5; pdy = sin(pa) * 5;
-    l_px = 100; l_py = 100;
+    //l_px = 100; l_py = 100;
 }
 
 int main(int argc, char** argv)
