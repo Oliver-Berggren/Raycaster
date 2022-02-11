@@ -38,9 +38,9 @@ void buttons(unsigned char key, int x, int y)
 int map[]=           //the map array. Edit to change level but keep the outer walls
         {
                 1,1,1,1,1,1,1,1,
+                1,0,1,0,0,0,1,1,
                 1,0,1,0,0,0,0,1,
-                1,0,1,0,0,0,0,1,
-                1,0,1,0,0,0,0,1,
+                1,0,1,0,1,0,0,1,
                 1,0,0,0,0,0,0,1,
                 1,0,0,0,0,1,0,1,
                 1,0,0,0,0,0,0,1,
@@ -74,30 +74,30 @@ void drawRays2D()
     glColor3f(0.282, 0.239, 0.545); glBegin(GL_QUADS); glVertex2i(526,  0); glVertex2i(1006,  0); glVertex2i(1006,160); glVertex2i(526,160); glEnd();
     glColor3f(	0.824, 0.706, 0.549); glBegin(GL_QUADS); glVertex2i(526,160); glVertex2i(1006,160); glVertex2i(1006,320); glVertex2i(526,320); glEnd();
     int r,mx,my,mp,dof,side; float vx,vy,rx,ry,ra,xo,yo,disV,disH;
-    ra=FixAng(pa+30);                                                              //ray set back 30 degrees
+    ra=FixAng(pa+30); //ray set back 30 degrees
 
     for(r=0;r<60;r++) //r = 60 for player, r = 360 for lighting
     {
         //---Vertical---
         dof=0; side=0; disV=100000;
         float Tan=tan(degToRad(ra));
-        if(cos(degToRad(ra))> 0.001){ rx=(((int)px>>6)<<6)+64;      ry=(px-rx)*Tan+py; xo= 64; yo=-xo*Tan;}//looking left
-        else if(cos(degToRad(ra))<-0.001){ rx=(((int)px>>6)<<6) -0.0001; ry=(px-rx)*Tan+py; xo=-64; yo=-xo*Tan;}//looking right
-        else { rx=px; ry=py; dof=8;}                                                  //looking up or down. no hit
+        if(cos(degToRad(ra))> 0.001){ rx=(((int)px>>6)<<6)+64;      ry=(px-rx)*Tan+py; xo= 64; yo=-xo*Tan;} //looking left towards grid line
+        else if(cos(degToRad(ra))<-0.001){ rx=(((int)px>>6)<<6) -0.0001; ry=(px-rx)*Tan+py; xo=-64; yo=-xo*Tan;} //looking right towards grid line
+        else { rx=px; ry=py; dof=8;}  //if ray NOT hit when looking up or down
 
         while(dof<8)
         {
             mx=(int)(rx)>>6; my=(int)(ry)>>6; mp=my*mapX+mx;
-            if(mp>0 && mp<mapX*mapY && map[mp]==1){ dof=8; disV=cos(degToRad(ra))*(rx-px)-sin(degToRad(ra))*(ry-py);}//hit
-            else{ rx+=xo; ry+=yo; dof+=1;}                                               //check next horizontal
+            if(mp>0 && mp<mapX*mapY && map[mp]==1){ dof=8; disV=cos(degToRad(ra))*(rx-px)-sin(degToRad(ra))*(ry-py);} //if ray hits when looking up or down
+            else{ rx+=xo; ry+=yo; dof+=1;} //else check next horizontal grid line
         }
         vx=rx; vy=ry;
 
         //---Horizontal---
         dof=0; disH=100000;
         Tan=1.0/Tan;
-        if(sin(degToRad(ra))> 0.001){ ry=(((int)py>>6)<<6) -0.0001; rx=(py-ry)*Tan+px; yo=-64; xo=-yo*Tan;} //looking up
-        else if(sin(degToRad(ra))<-0.001){ ry=(((int)py>>6)<<6)+64;      rx=(py-ry)*Tan+px; yo= 64; xo=-yo*Tan;} //looking down
+        if(sin(degToRad(ra))> 0.001){ ry=(((int)py>>6)<<6) -0.0001; rx=(py-ry)*Tan+px; yo=-64; xo=-yo*Tan;} //looking up towards grid line
+        else if(sin(degToRad(ra))<-0.001){ ry=(((int)py>>6)<<6)+64;      rx=(py-ry)*Tan+px; yo= 64; xo=-yo*Tan;} //looking down towards grid line
         else{ rx=px; ry=py; dof=8;} //looking straight left or right
 
         while(dof<8)
@@ -117,18 +117,19 @@ void drawRays2D()
 
         glLineWidth(8);glBegin(GL_LINES);glVertex2i(r*8+530,lineOff);glVertex2i(r*8+530,lineOff+lineH);glEnd(); //draw vertical wall
 
-        ra=FixAng(ra-1);                                                              //go to next ray
+        ra=FixAng(ra-1); //go to next ray
     }
 }
 
 ///////////////////// Lighting
-/*float l_px, l_py, l_pa; //x, y, delta x, delta y, angle
+float l_px, l_py, l_pa; //x, y, delta x, delta y, angle
 void drawLight()
 {
-    glColor3f(1,1,0);   glPointSize(8);    glLineWidth(4);
-
-}*/
-
+    glColor3f(1,1,0);
+    glPointSize(8);
+    glBegin(GL_POINTS); glVertex2i(l_px,l_py); glEnd();
+    glEnd();
+}
 
 ////////////////// Display
 void display(void)
@@ -136,6 +137,7 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawMap2D();
     drawPlayer();
+    drawLight();
     drawRays2D();
     glutSwapBuffers();
 }
@@ -145,7 +147,7 @@ void init (void)
     glClearColor(0.3,0.3,0.3,0);
     gluOrtho2D(0,1024,512,0);
     px = 300; py = 300; pdx = cos(pa) * 5; pdy = sin(pa) * 5;
-    //l_px = 100; l_py = 100;
+    l_px = 100; l_py = 100;
 }
 
 int main(int argc, char** argv)
@@ -159,5 +161,5 @@ int main(int argc, char** argv)
     glutDisplayFunc(display);
     glutKeyboardFunc(buttons);
     glutMainLoop();
-    //return 0;   /* ISO C requires main to return int. */
+
 }
